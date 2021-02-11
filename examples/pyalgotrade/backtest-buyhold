@@ -1,0 +1,104 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "0cce0762",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pyalgotrade import strategy\n",
+    "from pyalgotrade.barfeed import yahoofeed"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "5ac5d5b8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class BuyAndHoldStrategy(strategy.BacktestingStrategy):\n",
+    "\n",
+    "    def __init__(self, feed, instrument):\n",
+    "        super(BuyAndHoldStrategy, self).__init__(feed)\n",
+    "        self.instrument = instrument\n",
+    "        self.setUseAdjustedValues(True)\n",
+    "        self.position = None\n",
+    "\n",
+    "    def onEnterOk(self, position):\n",
+    "        self.info(f\"{position.getEntryOrder().getExecutionInfo()}\")\n",
+    "    \n",
+    "    def onBars(self, bars):\n",
+    "        bar = bars[self.instrument]\n",
+    "\n",
+    "        if self.position is None:\n",
+    "            close = bar.getAdjClose()\n",
+    "            broker = self.getBroker()\n",
+    "            cash = broker.getCash()\n",
+    "            quantity = cash / close\n",
+    "\n",
+    "            self.position = self.enterLong(self.instrument, quantity)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1efba8d3",
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "FileNotFoundError",
+     "evalue": "[Errno 2] No such file or directory: 'spy.csv'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mFileNotFoundError\u001b[0m                         Traceback (most recent call last)",
+      "\u001b[0;32m/tmp/ipykernel_34/1924100649.py\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0mfeed\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0myahoofeed\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mFeed\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0mfeed\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0maddBarsFromCSV\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"spy\"\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m\"spy.csv\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      3\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0mstrategy\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mBuyAndHoldStrategy\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfeed\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m\"spy\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m \u001b[0mstrategy\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrun\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/opt/conda/lib/python3.9/site-packages/pyalgotrade/barfeed/yahoofeed.py\u001b[0m in \u001b[0;36maddBarsFromCSV\u001b[0;34m(self, instrument, path, timezone)\u001b[0m\n\u001b[1;32m    150\u001b[0m             \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgetDailyBarTime\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgetFrequency\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtimezone\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m__sanitizeBars\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m__barClass\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    151\u001b[0m         )\n\u001b[0;32m--> 152\u001b[0;31m         \u001b[0msuper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mFeed\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0maddBarsFromCSV\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0minstrument\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mpath\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mrowParser\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/opt/conda/lib/python3.9/site-packages/pyalgotrade/barfeed/csvfeed.py\u001b[0m in \u001b[0;36maddBarsFromCSV\u001b[0;34m(self, instrument, path, rowParser, skipMalformedBars)\u001b[0m\n\u001b[1;32m    131\u001b[0m         \u001b[0;31m# Load the csv file\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    132\u001b[0m         \u001b[0mloadedBars\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 133\u001b[0;31m         \u001b[0mreader\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcsvutils\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mFastDictReader\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mopen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mpath\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m\"r\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mfieldnames\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mrowParser\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgetFieldNames\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdelimiter\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mrowParser\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgetDelimiter\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    134\u001b[0m         \u001b[0;32mfor\u001b[0m \u001b[0mrow\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mreader\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    135\u001b[0m             \u001b[0mbar_\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mparse_bar\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mrow\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mFileNotFoundError\u001b[0m: [Errno 2] No such file or directory: 'spy.csv'"
+     ]
+    }
+   ],
+   "source": [
+    "feed = yahoofeed.Feed()\n",
+    "feed.addBarsFromCSV(\"spy\", \"spy.csv\")\n",
+    "\n",
+    "strategy = BuyAndHoldStrategy(feed, \"spy\")\n",
+    "strategy.run()\n",
+    "portfolio_value = strategy.getBroker().getEquity() + strategy.getBroker().getCash()\n",
+    "print(portfolio_value)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9241323d",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
